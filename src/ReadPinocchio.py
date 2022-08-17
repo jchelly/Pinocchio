@@ -74,8 +74,8 @@ class catalog:
         Ngroups = 0
 
         dummy = f.read(4)
-        NTasksPerFile = np.fromfile(f,dtype=np.int32,count=1)
-        NSlices = np.fromfile(f,dtype=np.int32,count=1)
+        NTasksPerFile = np.fromfile(f,dtype=np.int32,count=1)[0]
+        NSlices = np.fromfile(f,dtype=np.int32,count=1)[0]
         dummy = f.read(4)
             
         print('This file has been written by ',NTasksPerFile,' tasks')
@@ -85,7 +85,7 @@ class catalog:
         for islice in range(NSlices):
             for iproc in range(NTasksPerFile):
                 dummy = f.read(4)
-                ngood = np.fromfile(f,dtype=np.int32,count=1)
+                ngood = np.fromfile(f,dtype=np.int32,count=1)[0]
                 print('ngood ',ngood)
                 dummy = f.read(4)
 
@@ -120,7 +120,7 @@ class catalog:
         for islice in range(NSlices):
             for iproc in range(NTasksPerFile):
                 dummy = f.read(4)
-                ngood = np.fromfile(f,dtype=np.int32,count=1)
+                ngood = np.fromfile(f,dtype=np.int32,count=1)[0]
                 dummy = f.read(4)
                 print('NGOOD ',ngood)
                 stopid += ngood
@@ -206,7 +206,7 @@ class histories:
         Ngroups = 0
 
         dummy = f.read(4)
-        NSlices = np.fromfile(f,dtype=np.int32,count=1)
+        NSlices = np.fromfile(f,dtype=np.int32,count=1)[0]
         dummy = f.read(4)
             
         print('The box has been fragmented in ',NSlices,' slices')
@@ -228,8 +228,8 @@ class histories:
         for islice in range(NSlices):
 
             dummy = f.read(4)
-            Ntrees = np.fromfile(f,dtype=np.int32,count=1)
-            Nbranches = np.fromfile(f,dtype=np.int32,count=1)
+            Ntrees = np.fromfile(f,dtype=np.int32,count=1)[0]
+            Nbranches = np.fromfile(f,dtype=np.int32,count=1)[0]
             dummy = f.read(4)
             Total+=Nbranches
             
@@ -237,8 +237,8 @@ class histories:
 
             for itree in range(Ntrees):
                 dummy = f.read(4)
-                mytree = np.fromfile(f,dtype=np.int32,count=1)
-                mynbranch = np.fromfile(f,dtype=np.int32,count=1)
+                mytree = np.fromfile(f,dtype=np.int32,count=1)[0]
+                mynbranch = np.fromfile(f,dtype=np.int32,count=1)[0]
                 dummy = f.read(4)
 
                 f.seek(mynbranch*60,1)
@@ -263,17 +263,17 @@ class histories:
         stopid = 0
         for islice in range(NSlices):
             dummy = f.read(4)
-            Ntrees = np.fromfile(f,dtype=np.int32,count=1)
-            Nbranches = np.fromfile(f,dtype=np.int32,count=1)
+            Ntrees = np.fromfile(f,dtype=np.int32,count=1)[0]
+            Nbranches = np.fromfile(f,dtype=np.int32,count=1)[0]
             dummy = f.read(4)
 
             for itree in range(Ntrees):
                 dummy = f.read(4)
-                mytree = np.fromfile(f,dtype=np.int32,count=1)
-                mynbranch = np.fromfile(f,dtype=np.int32,count=1)
+                mytree = np.fromfile(f,dtype=np.int32,count=1)[0]
+                mynbranch = np.fromfile(f,dtype=np.int32,count=1)[0]
                 dummy = f.read(4)
 
-                stopid += mynbranch[0]
+                stopid += mynbranch
                 catalog = np.fromfile(f,dtype=record_dtype,count=mynbranch)
 
                 self.name          [startid:stopid] = catalog['name']
