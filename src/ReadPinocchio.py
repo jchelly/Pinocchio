@@ -66,37 +66,37 @@ from struct import unpack
 class catalog:
     def __init__(self,filename):
         if (not os.path.exists(filename)):
-            print "file not found:", filename
+            print("file not found:", filename)
             sys.exit()
 
         f = open(filename,'rb')
 
-        Ngroups = 0L
+        Ngroups = 0
 
         dummy = f.read(4)
-        NTasksPerFile = np.fromfile(f,dtype=np.int32,count=1)              
-        NSlices = np.fromfile(f,dtype=np.int32,count=1)  
+        NTasksPerFile = np.fromfile(f,dtype=np.int32,count=1)
+        NSlices = np.fromfile(f,dtype=np.int32,count=1)
         dummy = f.read(4)
             
-        print 'This file has been written by ',NTasksPerFile,' tasks'
-        print 'The box has been fragmented in ',NSlices,' slices'
+        print('This file has been written by ',NTasksPerFile,' tasks')
+        print('The box has been fragmented in ',NSlices,' slices')
 
         # Count the number of halos
-        for islice in xrange(NSlices):
-            for iproc in xrange(NTasksPerFile):
+        for islice in range(NSlices):
+            for iproc in range(NTasksPerFile):
                 dummy = f.read(4)
-                ngood = np.fromfile(f,dtype=np.int32,count=1)  
-                print 'ngood ',ngood
+                ngood = np.fromfile(f,dtype=np.int32,count=1)
+                print('ngood ',ngood)
                 dummy = f.read(4)
 
                 Ngroups += ngood
-                f.seek(ngood*(11*64/8+2*32/8+2*32/8),1)
+                f.seek(ngood*(11*64//8+2*32//8+2*32//8),1)
 
         # Go back to the starting point (NTasksPerFile already read)
-        print '+++++++++++++++++++'
+        print('+++++++++++++++++++')
         f.seek(16) 
 
-        print 'Total number of halos: ',Ngroups
+        print('Total number of halos: ',Ngroups)
 
         self.name = np.empty(Ngroups,dtype=np.uint64)
         self.Mass = np.empty(Ngroups,dtype=np.float64)
@@ -117,13 +117,13 @@ class catalog:
 
         startid = 0
         stopid = 0
-        for islice in xrange(NSlices):
-            for iproc in xrange(NTasksPerFile):
+        for islice in range(NSlices):
+            for iproc in range(NTasksPerFile):
                 dummy = f.read(4)
-                ngood = np.fromfile(f,dtype=np.int32,count=1)  
+                ngood = np.fromfile(f,dtype=np.int32,count=1)
                 dummy = f.read(4)
-                print 'NGOOD ',ngood
-                stopid += ngood[0]
+                print('NGOOD ',ngood)
+                stopid += ngood
                 catalog = np.fromfile(f,dtype=record_dtype,count=ngood)
 
                 self.name[startid:stopid] = catalog['name']            
@@ -142,12 +142,12 @@ class catalog:
 class plc:
     def __init__(self,filename,memsplit=10):
         if (not os.path.exists(filename)):
-            print "file not found:", filename
+            print("file not found:", filename)
             sys.exit()
 
         f=open(filename,'rb')
 
-        Ngroups = os.path.getsize(filename)/(13*8+4+4) 
+        Ngroups = os.path.getsize(filename)//(13*8+4+4) 
 
         self.name = np.empty(Ngroups,dtype=np.uint64)
         self.redshift = np.empty(Ngroups,dtype=np.float64)
@@ -171,10 +171,10 @@ class plc:
                                        ( 'obsz' , np.float64 ), \
                                        ( 'dummy2' , np.int32 ) ] )        
 
-        Npartial = Ngroups/memsplit
+        Npartial = Ngroups//memsplit
         startid = 0
         stopid = Npartial
-        for i in xrange(memsplit):
+        for i in range(memsplit):
             if (i == memsplit-1):
                 stopid = stopid + Ngroups % memsplit
             
@@ -198,18 +198,18 @@ class plc:
 class histories:
     def __init__(self,filename):
         if (not os.path.exists(filename)):
-            print "file not found:", filename
+            print("file not found:", filename)
             sys.exit()
 
         f = open(filename,'rb')
 
-        Ngroups = 0L
+        Ngroups = 0
 
         dummy = f.read(4)
-        NSlices = np.fromfile(f,dtype=np.int32,count=1)  
+        NSlices = np.fromfile(f,dtype=np.int32,count=1)
         dummy = f.read(4)
             
-        print 'The box has been fragmented in ',NSlices,' slices'
+        print('The box has been fragmented in ',NSlices,' slices')
 
         record_dtype = np.dtype( [     ( 'dummy'          , np.int32 ), \
                                        ( 'name'           , np.uint64 ), \
@@ -221,33 +221,33 @@ class histories:
                                        ( 'z_merging'      , np.float64 ), \
                                        ( 'z_peak'         , np.float64 ), \
                                        ( 'z_appear'       , np.float64 ), \
-                                       ( 'dummy2'         , np.int32 ) ] )        
+                                       ( 'dummy2'         , np.int32 ) ] )
 
-       # Count the number of halos
+        # Count the number of halos
         Total=0
-        for islice in xrange(NSlices):
+        for islice in range(NSlices):
 
             dummy = f.read(4)
-            Ntrees = np.fromfile(f,dtype=np.int32,count=1)  
+            Ntrees = np.fromfile(f,dtype=np.int32,count=1)
             Nbranches = np.fromfile(f,dtype=np.int32,count=1)
             dummy = f.read(4)
             Total+=Nbranches
             
-            print 'Slice N. ',islice,': ',Ntrees,' trees and ',Nbranches,' branches'
+            print('Slice N. ',islice,': ',Ntrees,' trees and ',Nbranches,' branches')
 
-            for itree in xrange(Ntrees):
+            for itree in range(Ntrees):
                 dummy = f.read(4)
-                mytree = np.fromfile(f,dtype=np.int32,count=1)  
-                mynbranch = np.fromfile(f,dtype=np.int32,count=1)  
+                mytree = np.fromfile(f,dtype=np.int32,count=1)
+                mynbranch = np.fromfile(f,dtype=np.int32,count=1)
                 dummy = f.read(4)
 
                 f.seek(mynbranch*60,1)
 
         # Go back to the starting point (NTasksPerFile already read)
-        print '+++++++++++++++++++'
+        print('+++++++++++++++++++')
         f.seek(12) 
 
-        print 'Total number of halos: ',Total
+        print('Total number of halos: ',Total)
 
         self.name           = np.empty(Total,dtype=np.uint64)
         self.nickname       = np.empty(Total,dtype=np.int32 )
@@ -261,16 +261,16 @@ class histories:
 
         startid = 0
         stopid = 0
-        for islice in xrange(NSlices):
+        for islice in range(NSlices):
             dummy = f.read(4)
-            Ntrees = np.fromfile(f,dtype=np.int32,count=1)  
+            Ntrees = np.fromfile(f,dtype=np.int32,count=1)
             Nbranches = np.fromfile(f,dtype=np.int32,count=1)
             dummy = f.read(4)
 
-            for itree in xrange(Ntrees):
+            for itree in range(Ntrees):
                 dummy = f.read(4)
-                mytree = np.fromfile(f,dtype=np.int32,count=1)  
-                mynbranch = np.fromfile(f,dtype=np.int32,count=1)  
+                mytree = np.fromfile(f,dtype=np.int32,count=1)
+                mynbranch = np.fromfile(f,dtype=np.int32,count=1)
                 dummy = f.read(4)
 
                 stopid += mynbranch[0]
