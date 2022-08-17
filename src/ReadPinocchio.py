@@ -211,17 +211,24 @@ class histories:
             
         print('The box has been fragmented in ',NSlices,' slices')
 
-        record_dtype = np.dtype( [     ( 'dummy'          , np.int32 ), \
-                                       ( 'name'           , np.uint64 ), \
-                                       ( 'nickname'       , np.int32 ),  \
-                                       ( 'link'           , np.int32 ), \
-                                       ( 'merged_with'    , np.int32 ), \
-                                       ( 'mass_at_merger' , np.int32 ), \
-                                       ( 'mass_of_main'   , np.int32 ), \
-                                       ( 'z_merging'      , np.float64 ), \
-                                       ( 'z_peak'         , np.float64 ), \
-                                       ( 'z_appear'       , np.float64 ), \
-                                       ( 'dummy2'         , np.int32 ) ] )
+        # Define a type corresponding to the C hist struct.
+        # Need to use align=True to add the same padding for alignment as the C compiler.
+        # This may fail if pinocchio and python are run on different architectures.
+        hist_dtype = np.dtype( [   ( 'name'           , np.uint64 ), \
+                                   ( 'nickname'       , np.int32 ),  \
+                                   ( 'link'           , np.int32 ), \
+                                   ( 'merged_with'    , np.int32 ), \
+                                   ( 'mass_at_merger' , np.int32 ), \
+                                   ( 'mass_of_main'   , np.int32 ), \
+                                   ( 'z_merging'      , np.float64 ), \
+                                   ( 'z_peak'         , np.float64 ), \
+                                   ( 'z_appear'       , np.float64 ) ], align=True)
+
+        # Then wrap this with the start and end of record markers.
+        # Need align=False here to avoid adding padding to the record markers.
+        record_dtype = np.dtype( [ ( 'dummy'          , np.int32 ), \
+                                   ( 'hist'           , hist_dtype), \
+                                   ( 'dummy2'         , np.int32 ) ], align=False)
 
         # Count the number of halos
         Total=0
@@ -241,7 +248,7 @@ class histories:
                 mynbranch = np.fromfile(f,dtype=np.int32,count=1)[0]
                 dummy = f.read(4)
 
-                f.seek(mynbranch*60,1)
+                f.seek(mynbranch*record_dtype.itemsize,1)
 
         # Go back to the starting point (NTasksPerFile already read)
         print('+++++++++++++++++++')
@@ -274,7 +281,7 @@ class histories:
                 dummy = f.read(4)
 
                 stopid += mynbranch
-                catalog = np.fromfile(f,dtype=record_dtype,count=mynbranch)
+                catalog = np.fromfile(f,dtype=record_dtype,count=mynbranch)['hist']
 
                 self.name          [startid:stopid] = catalog['name']
                 self.nickname      [startid:stopid] = catalog['nickname']
