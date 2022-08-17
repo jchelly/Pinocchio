@@ -105,15 +105,16 @@ class catalog:
         self.vel = np.empty((Ngroups,3),dtype=np.float64)
         self.Npart = np.empty(Ngroups,dtype=np.int64)
 
-        record_dtype = np.dtype( [     ( 'dummy' , np.int32 ), \
-                                       ( 'name' , np.uint64 ), \
+        catalog_dtype = np.dtype( [    ( 'name' , np.uint64 ), \
                                        ( 'Mass' , np.float64 ), \
                                        ( 'posin' , np.float64,3 ), \
                                        ( 'pos' , np.float64,3 ), \
                                        ( 'vel' , np.float64,3 ), \
-                                       ( 'Npart' , np.int32 ),\
-                                       ( 'pad' , np.int32 ),\
-                                       ( 'dummy2' , np.int32 )])
+                                       ( 'Npart' , np.int32 )], align=True)
+
+        record_dtype = np.dtype( [     ( 'dummy'  , np.int32 ), \
+                                       ( 'catalog', catalog_dtype ), \
+                                       ( 'dummy2' , np.int32 )], align=False)
 
         startid = 0
         stopid = 0
@@ -124,7 +125,7 @@ class catalog:
                 dummy = f.read(4)
                 print('NGOOD ',ngood)
                 stopid += ngood
-                catalog = np.fromfile(f,dtype=record_dtype,count=ngood)
+                catalog = np.fromfile(f,dtype=record_dtype,count=ngood)['catalog']
 
                 self.name[startid:stopid] = catalog['name']            
                 self.Mass[startid:stopid] = catalog['Mass']            
